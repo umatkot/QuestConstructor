@@ -44,8 +44,9 @@
     <Compile Include="Helpers\ListHelper.cs" />
     <Compile Include="Model\Condition.cs" />
     <Compile Include="Model\Interview.cs" />
-    <Compile Include="Services\Export.cs" />
+    <Compile Include="Services\ExportToCSV.cs" />
     <Compile Include="Services\ConditionCalculator.cs" />
+    <Compile Include="Services\ExportToDB.cs" />
     <Compile Include="Services\InterviewManipulator.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Model\Questionnaire.cs" />

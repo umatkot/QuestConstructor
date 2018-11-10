@@ -150,7 +150,7 @@ namespace QuestConstructorNS
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     //экспортируем
-                    new Export().ExportToCSV(anketas, sfd.FileName);
+                    new ExportToCSV().Export(anketas, sfd.FileName);
                     MessageBox.Show("Экспортировано " + anketas.Count + " анкет");
                 }
             }

@@ -13,6 +13,11 @@ namespace QuestInterviewNS
 {
     public partial class MainForm : Form
     {
+        /// <summary>
+        /// Нужно сохранить в базу данных?
+        /// </summary>
+        public bool SaveToDB { get; set; } = true;
+
         //интервью
         private Interview interview;
 
@@ -124,11 +129,20 @@ namespace QuestInterviewNS
             //предлагаем сохранить анкету
             if (MessageBox.Show("Сохранить анкету?", "Сохранение анкеты", MessageBoxButtons.OKCancel) == DialogResult.OK)
             {
-                var sfd = new SaveFileDialog() { Filter = "Анкета|*.a", FileName = Guid.NewGuid().ToString() };
-                if (sfd.ShowDialog(this) == DialogResult.OK)
+                if (SaveToDB)
                 {
-                    //сохраняем анкету
-                    SaverLoader.Save(anketa, sfd.FileName);
+                    //сохраняем анкету в БД
+                    new ExportToDB().Export(questionnaire, anketa);
+                }
+                else
+                {
+                    //запрашиваем имя файла
+                    var sfd = new SaveFileDialog() {Filter = "Анкета|*.a", FileName = Guid.NewGuid().ToString()};
+                    if (sfd.ShowDialog(this) == DialogResult.OK)
+                    {
+                        //сохраняем анкету
+                        SaverLoader.Save(anketa, sfd.FileName);
+                    }
                 }
             }
             //выходим
