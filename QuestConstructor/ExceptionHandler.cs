@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 
-namespace System
+namespace QuestConstructorNS
 {
     public static class ExceptionHandler
     {
@@ -21,24 +18,21 @@ namespace System
         static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
             //здесь обрабатываются исключения не UI потоков
-            var ex = e.ExceptionObject as Exception;
-            if (ex != null)
-            {
-                while (ex.InnerException != null)
-                    ex = ex.InnerException;
-                MessageBox.Show(ex.Message, "Thread exception");
-            }
-            else
-                MessageBox.Show(e.ExceptionObject.ToString(), "Thread exception");
+            var exc = GetInnerException((Exception)e.ExceptionObject);
+            MessageBox.Show(exc.Message, @"Thread exception");
         }
 
         static void Handle(object sender, ThreadExceptionEventArgs e)
         {
-            var ex = e.Exception;
-            while (ex.InnerException != null)
-                ex = ex.InnerException;
+            var exc = GetInnerException(e.Exception);
+            MessageBox.Show(exc.Message, @"Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        }
 
-            MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+        private static Exception GetInnerException(Exception exc)
+        {
+            while (exc.InnerException != null)
+                exc = exc.InnerException;
+            return exc;
         }
     }
 }

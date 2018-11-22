@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Заполненная анкета.

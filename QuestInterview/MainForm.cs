@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using QuestCoreNS;
+using QuestCore;
+using QuestInterviewNS.Controls;
 
 namespace QuestInterviewNS
 {
@@ -50,7 +45,7 @@ namespace QuestInterviewNS
             //запрашиваем опросник, если он не задан
             if (questionnaire == null)
             {
-                var ofd = new OpenFileDialog() { Filter = "Опросник|*.q", Title = "Выберите опросник" };
+                var ofd = new OpenFileDialog() { Filter = @"Опросник|*.q", Title = @"Выберите опросник" };
                 if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
                     questionnaire = SaverLoader.Load<Questionnaire>(ofd.FileName);

@@ -1,10 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Linq;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Производит манипуляции с опросником
@@ -28,7 +24,7 @@ namespace QuestCoreNS
                 name = DefaultQuestPrefix + counter;
             }
             //
-            var quest = new Quest() {Id = name, Title = "Текст вопроса"};
+            var quest = new Quest {Id = name, Title = "Текст вопроса"};
             questionnaire.Add(quest);
             return quest;
         }

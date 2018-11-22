@@ -1,21 +1,27 @@
 ﻿using System;
+using System.Linq;
 using System.Windows.Forms;
-using QuestCoreNS;
+using QuestCore;
 
 namespace QuestConstructorNS
 {
     public partial class QuestPanel : UserControl
     {
-        private Questionnaire questionnaire;
-        private Quest quest;
-        private int updating;
+        private FlowPanelActionHelper FlowPanelActionHelper { get; }
+        private Questionnaire _questionnaire;
+        private Quest _quest;
+        private int _updating;
+        private IConventions Conventions { get; }
 
-        public event Action QuestionnaireListChanged = delegate { };
+        public event Action<string, UserPanelActionType> QuestionnaireListChanged = (questionPamelKey, actionType) => {};
         public event Action Changed = delegate { };
 
         public QuestPanel()
         {
             InitializeComponent();
+            Conventions = new Conventions();
+            Name = Guid.NewGuid().ToString();
+            FlowPanelActionHelper = new FlowPanelActionHelper(pnAlternatives);
         }
 
         /// <summary>
@@ -23,14 +29,11 @@ namespace QuestConstructorNS
         /// </summary>
         public void Build(Questionnaire questionnaire, Quest quest)
         {
-            this.questionnaire = questionnaire;
-            this.quest = quest;
+            _questionnaire = questionnaire;
+            _quest = quest;
 
             //выставляем флажок обновления
-            updating++;
-
-            //создаем хелпер отрисовки, останавливаем отрисовку
-            var helper = new ControlHelper(this);
+            _updating++;
 
             //переносим данные из объекта в интерфейс
             tbId.Text = quest.Id;
@@ -38,35 +41,19 @@ namespace QuestConstructorNS
             lbCondition.Text = quest.Condition?.ToString() ?? "Если...";
 
             //инициализируем комбобокс с типом вопроса
-            cbQuestType.DataSource = Enum.GetValues(typeof(QuestType));
+            var questionTypes = Conventions.GenerateQuestTypes();
+
+            cbQuestType.DataSource = questionTypes;
             cbQuestType.SelectedItem = quest.QuestType;
 
-            //строим список альтернатив
-            //очищаем панель альтернатив
-            pnAlternatives.Controls.Clear();
-            //создаем контролы для каждой альтернативы
-            foreach (var alt in quest)
-            {
-                //создаем usercontrol для альтренативы
-                var pn = new AlternativePanel();
-                //строим его
-                pn.Build(questionnaire, quest, alt);
-                //подписываемся на события
-                pn.AlternativeListChanged += () =>
-                {
-                    Build(questionnaire, quest); //перестриваем интерфейс, если изменился список альтернатив
-                    Changed(); //сигнализируем наверх о том, что объект изменился
-                };
-                pn.Changed += () => Changed(); //сигнализируем наверх о том, что объект изменился
-                //добавляем на панель альтернатив
-                pnAlternatives.Controls.Add(pn);
-            }
-
-            //восстанавливаем отрисовку
-            helper.ResumeDrawing();
-
             //сбрасываем флажок обновления
-            updating--;
+            _updating--;
+        }
+
+        private void ProcessAlternativeListAction(string altKey, UserPanelActionType actionType)
+        {
+            FlowPanelActionHelper.ProcessElements(altKey, actionType);
+            Changed(); //сигнализируем наверх о том, что объект изменился
         }
 
         /// <summary>
@@ -75,12 +62,16 @@ namespace QuestConstructorNS
         private void UpdateObject()
         {
             //если режим обновления интерфейса - не реагируем
-            if (updating > 0) return;
+            if (_updating > 0) return;
 
             //переносим данные из интерфейса в объект
-            quest.Id = tbId.Text;
-            quest.Title = tbTitle.Text;
-            quest.QuestType = (QuestType)cbQuestType.SelectedItem;
+            _quest.Id = tbId.Text;
+            _quest.Title = tbTitle.Text;
+
+            _quest.QuestType = ((QuestTypeDataSet)cbQuestType.SelectedItem).Value;
+
+//В зависимости от типа вопроса ограничиваем пользователя в выборе альтернативы
+            btAddAlt.Enabled = _quest.QuestType == QuestType.SingleAnswer;
 
             //сигнализируем наверх о том, что объект изменился
             Changed();
@@ -88,29 +79,28 @@ namespace QuestConstructorNS
 
         private void btDelete_Click(object sender, EventArgs e)
         {
-            if (MessageBox.Show("Удалить вопрос?", "Удаление вопроса", MessageBoxButtons.OKCancel) == DialogResult.OK)
-            {
-                //удаляем вопрос
-                new QuestionnaireManipulator().RemoveQuest(questionnaire, quest);
-                //сигнализируем наверх о том, что список вопросов поменялся
-                QuestionnaireListChanged();
-            }
+            if (MessageBox.Show(@"Удалить вопрос?", @"Удаление вопроса", MessageBoxButtons.OKCancel) !=
+                DialogResult.OK) return;
+            //удаляем вопрос
+            new QuestionnaireManipulator().RemoveQuest(_questionnaire, _quest);
+            //сигнализируем наверх о том, что список вопросов поменялся
+            QuestionnaireListChanged(Name, UserPanelActionType.Remove);
         }
 
         private void btUp_Click(object sender, EventArgs e)
         {
             //передвигаем вопрос вверх по списку
-            new QuestionnaireManipulator().MoveQuest(questionnaire, quest, -1);
+            new QuestionnaireManipulator().MoveQuest(_questionnaire, _quest, (int)UserPanelActionType.MoveUp);
             //сигнализируем наверх о том, что список вопросов поменялся
-            QuestionnaireListChanged();
+            QuestionnaireListChanged(Name, UserPanelActionType.MoveUp);
         }
 
         private void btDown_Click(object sender, EventArgs e)
         {
             //передвигаем вопрос вниз по списку
-            new QuestionnaireManipulator().MoveQuest(questionnaire, quest, +1);
+            new QuestionnaireManipulator().MoveQuest(_questionnaire, _quest, (int)UserPanelActionType.MoveDown);
             //сигнализируем наверх о том, что список вопросов поменялся
-            QuestionnaireListChanged();
+            QuestionnaireListChanged(Name, UserPanelActionType.MoveDown);
         }
 
         private void tb_TextChanged(object sender, EventArgs e)
@@ -122,31 +112,82 @@ namespace QuestConstructorNS
         private void btAddAlt_Click(object sender, EventArgs e)
         {
             //добавляем новую альтернативу
-            new QuestManipulator().AddNewAlt(quest);
-            //перестраиваем интерфейс
-            Build(questionnaire, quest);
+            if (new QuestManipulator().AddNewAlt(_quest) == null)
+            {
+                btAddAlt.Enabled = false;
+                return;
+            }
+
+            /*Добавляем новую альтернативу*/
+            var alt = _quest.LastOrDefault();
+            if (alt == null) return;
+
+            var pn = new AlternativePanel();
+
+            pn.Build(_questionnaire, _quest, alt);
+            pn.AlternativeListChanged += ProcessAlternativeListAction;
+            pn.AddQuestionByAlternative += (questionId) => { QuestionnaireListChanged(questionId, UserPanelActionType.Add); };
+
+            pn.Changed += () => Changed();
+            pnAlternatives.Controls.Add(pn);
         }
 
         private void lbCondition_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
+            _questionnaire.SetCurrentElement(_quest);
+
             //создаем условие, если его еще нет
-            if (quest.Condition == null)
-                quest.Condition = new Condition();
+            if (_quest.Condition == null)
+                _quest.Condition = new Condition();
 
             //показываем форму редактора условия
             var form = new ConditionForm();
-            form.Build(questionnaire, quest.Condition);
+            form.Build(_questionnaire, _quest.Condition);
             form.Changed += () => Changed();//сигнализируем наверх о том, что объект поменялся
             form.ShowDialog(this);//показываем конструктор условий
 
             //перестриваем интерфйес
-            Build(questionnaire, quest);
+            Build(_questionnaire, _quest);
         }
 
         protected override void OnPaintBackground(PaintEventArgs e)
         {
             base.OnPaintBackground(e);
             //e.Graphics.DrawLine(Pens.Gray, ClientRectangle.Left, ClientRectangle.Top, ClientRectangle.Right, ClientRectangle.Top);
+        }
+
+        /// <summary>
+        /// Обработка выбора типа вопроса - определено свойствами вопроса по альтернативам
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void cbQuestType_SelectionChangeCommitted(object sender, EventArgs e)
+        {
+            var inputValue = cbQuestType.SelectedItem;
+            
+            if (((QuestTypeDataSet)inputValue).Value != QuestType.SingleAnswer && _quest.Any())
+            {
+                cbQuestType.SelectedItem = cbQuestType.Items.OfType<QuestTypeDataSet>().First(qti => qti.Value.Equals(_quest.QuestType));
+                if (MessageBox.Show(
+                        $@"Для заданного типа вопроса не требуются альтернативы.{Environment.NewLine}Удалить уже добавленные альтернативы?",
+                        @"Смена типа вопроса",
+                        MessageBoxButtons.YesNo) == DialogResult.Yes)
+                {
+                    _quest.Clear();
+                    pnAlternatives.Controls.Clear();
+                    cbQuestType.SelectedItem = inputValue;
+                }
+                else
+                {
+                    MessageBox.Show(
+                        $@"У вопроса имеются альтернативы.{Environment.NewLine}Изменение типа вопроса невозможно",
+                        @"Смена типа вопроса");
+                    
+                    return;//При отмене удаления альтернатив смена типа вопроса отменяется
+                }
+            }
+
+            UpdateObject();
         }
     }
 }

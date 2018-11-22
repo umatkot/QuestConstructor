@@ -1,4 +1,0 @@
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\bin\Release\QuestCore.dll
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\bin\Release\QuestCore.pdb
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\obj\Release\QuestCore.dll
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\obj\Release\QuestCore.pdb

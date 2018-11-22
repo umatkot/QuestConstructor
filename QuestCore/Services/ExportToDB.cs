@@ -1,7 +1,7 @@
 ﻿using System.Data.OleDb;
 using System.Linq;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Экспорт в базу данных

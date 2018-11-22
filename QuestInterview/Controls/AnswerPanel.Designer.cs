@@ -1,4 +1,4 @@
-﻿namespace QuestInterviewNS
+﻿namespace QuestInterviewNS.Controls
 {
     partial class AnswerPanel
     {

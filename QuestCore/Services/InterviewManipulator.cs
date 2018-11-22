@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Функционал для Interview
@@ -23,20 +23,20 @@ namespace QuestCoreNS
             if (interview.IsFinished) return;//интервью уже завершено
 
             //получаем индекс текущего вопроса
-            var currentQuestIndex = interview.CurrentAnswer == null ? -1 : interview.questionnaire.FindIndex(q => q.Id == interview.CurrentAnswer.QuestId);
+            var currentQuestIndex = interview.CurrentAnswer == null ? -1 : interview.Questionnaire.FindIndex(q => q.Id == interview.CurrentAnswer.QuestId);
 
             //ищем следующий вопрос, у которго выполняется условие показа
-            for (int i = currentQuestIndex + 1; i < interview.questionnaire.Count; i++)
+            for (int i = currentQuestIndex + 1; i < interview.Questionnaire.Count; i++)
             {
                 //получаем условие отображения вопроса
-                var condition = interview.questionnaire[i].Condition;
+                var condition = interview.Questionnaire[i].Condition;
 
                 //условие выполняется?
                 var clalculator = new ConditionCalculator();
-                if (clalculator.Calculate(interview.anketa, condition))
+                if (clalculator.Calculate(interview.Anketa, condition))
                 {
                     //нашли
-                    var quest = interview.questionnaire[i];
+                    var quest = interview.Questionnaire[i];
 
                     //добавляем текущий ответ в список отвеченных вопросов
                     if(interview.CurrentAnswer != null)
@@ -44,7 +44,7 @@ namespace QuestCoreNS
 
                     //создаем новый Answer для нового вопроса
                     interview.CurrentAnswer = new Answer { QuestId = quest.Id };
-                    interview.anketa.Add(interview.CurrentAnswer);
+                    interview.Anketa.Add(interview.CurrentAnswer);
                     //
                     return;
                 }
@@ -68,12 +68,12 @@ namespace QuestCoreNS
             if (interview.CurrentAnswer == null) yield break;//нет текущего вопроса
 
             //получаем текущий вопрос
-            var quest = interview.questionnaire.First(q => q.Id == interview.CurrentAnswer.QuestId);
+            var quest = interview.Questionnaire.First(q => q.Id == interview.CurrentAnswer.QuestId);
 
             //перебираем альтернативы, проверяем условние показа, возвращаем те, которые разрешены к показу
             var clalculator = new ConditionCalculator();
             foreach (var alt in quest)
-            if (clalculator.Calculate(interview.anketa, alt.Condition))
+            if (clalculator.Calculate(interview.Anketa, alt.Condition))
                 yield return alt;
         }
     }

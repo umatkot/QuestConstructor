@@ -2,12 +2,12 @@
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 
-namespace System
+namespace QuestCore
 {
     public class ControlHelper
     {
-        private int scrollValue;
-        private ScrollableControl ctrl;
+        private int _scrollValue;
+        private readonly ScrollableControl _ctrl;
 
         [DllImport("user32.dll")]
         private static extern int SendMessage(IntPtr hWnd, Int32 wMsg, bool wParam, Int32 lParam);
@@ -15,23 +15,23 @@ namespace System
 
         public ControlHelper(ScrollableControl ctrl)
         {
-            this.ctrl = ctrl;
+            this._ctrl = ctrl;
             StopDrawing();
         }
 
         private void StopDrawing()
         {
-            SendMessage(ctrl.Handle, WM_SETREDRAW, false, 0);
-            scrollValue = ctrl.VerticalScroll.Value;
-            ctrl.SuspendLayout();
+            SendMessage(_ctrl.Handle, WM_SETREDRAW, false, 0);
+            _scrollValue = _ctrl.VerticalScroll.Value;
+            _ctrl.SuspendLayout();
         }
 
         public void ResumeDrawing()
         {
-            ctrl.VerticalScroll.Value = Math.Min(ctrl.VerticalScroll.Maximum, scrollValue);
-            ctrl.ResumeLayout();
-            SendMessage(ctrl.Handle, WM_SETREDRAW, true, 0);
-            ctrl.Refresh();
+            _ctrl.VerticalScroll.Value = Math.Min(_ctrl.VerticalScroll.Maximum, _scrollValue);
+            _ctrl.ResumeLayout();
+            SendMessage(_ctrl.Handle, WM_SETREDRAW, true, 0);
+            _ctrl.Refresh();
         }
     }
 }

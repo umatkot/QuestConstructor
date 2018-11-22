@@ -1,18 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Процесс прохождения интервью
     /// </summary>
     public class Interview
     {
-        internal Questionnaire questionnaire { get; private set; }
-        internal Anketa anketa { get; private set; }
+        internal Questionnaire Questionnaire { get; }
+        internal Anketa Anketa { get; }
 
         /// <summary>
         /// Ответы, уже данные респондентом
@@ -31,8 +27,8 @@ namespace QuestCoreNS
 
         public Interview(Questionnaire questionnaire, Anketa anketa)
         {
-            this.questionnaire = questionnaire;
-            this.anketa = anketa;
+            Questionnaire = questionnaire;
+            Anketa = anketa;
         }
     }
 }

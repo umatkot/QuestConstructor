@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Проверяет корректность опросника.
@@ -21,14 +19,18 @@ namespace QuestCoreNS
                 throw new Exception("Дублируется имя вопроса " + q.Id);
 
             //проверяем уникальность кодов альтернатив и их число
-            foreach (var quest in questionnaire)
+            foreach (var quest in questionnaire.Where(q => q.QuestType.Equals(QuestType.SingleAnswer)))
             {
                 var codes = new HashSet<int>();
-                foreach (var a in quest)
-                if (!codes.Add(a.Code))
-                    throw new Exception("В вопросе " + quest.Id + " дублируется код альтернативы " + a.Code);
-                if(quest.Count == 0)
+
+                if(!quest.Any())
                     throw new Exception("В вопросе " + quest.Id + " нет альтернатив");
+
+                foreach (var questionAlternative in quest)
+                {
+                    if (!codes.Add(questionAlternative.Code))
+                        throw new Exception("В вопросе " + quest.Id + " дублируется код альтернативы " + questionAlternative.Code);
+                }
             }
         }
     }

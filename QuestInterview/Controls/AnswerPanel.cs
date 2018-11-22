@@ -1,18 +1,17 @@
 ﻿using System;
-using System.Linq;
 using System.Windows.Forms;
-using QuestCoreNS;
+using QuestCore;
 
-namespace QuestInterviewNS
+namespace QuestInterviewNS.Controls
 {
     /// <summary>
     /// Отображение вопроса и ответа
     /// </summary>
     public partial class AnswerPanel : UserControl
     {
-        private Quest quest;
-        private Answer answer;
-        private InterviewManipulator interviewManipulator;
+        
+
+        private ConventionsWorker ConventionsWorker { get; }
 
         /// <summary>
         /// Пользователь указал/изменил ответ
@@ -22,6 +21,15 @@ namespace QuestInterviewNS
         public AnswerPanel()
         {
             InitializeComponent();
+
+            /*Устанавливаются делегаты на требуемые действия в зависимости от поступающего вопроса*/
+            ConventionsWorker = new ConventionsWorker(new Action[]
+            {
+                BuildSingleAnswerInterface,
+                BuildOpenAnswerInterface,
+                BuildReadOnlyAnswerInterface
+            });
+
         }
 
         /// <summary>
@@ -29,42 +37,25 @@ namespace QuestInterviewNS
         /// </summary>
         public void Build(InterviewManipulator interviewManipulator, Quest quest, Answer answer, bool readOnly)
         {
-            this.interviewManipulator = interviewManipulator;
-            this.quest = quest;
-            this.answer = answer;
-
-            lbQuestTitle.Text = quest.Title;
-
-            //очищаем панель альтернатив
             pnMain.Controls.Clear();
-
-            if (readOnly)
-            {
-                //строим ответы в режиме readonly
-                BuildReadOnlyAnswerInterface();
-            }
-            else
-            { 
-                //строим альтернативы, в зависимости от типа вопроса
-                switch (quest.QuestType)
-                {
-                    case QuestType.SingleAnswer: BuildSingleAnswerInterface(); break;
-                    case QuestType.OpenQuestion: BuildOpenAnswerInterface(); break;
-                }
-            }
+            lbQuestTitle.Text = quest.Title;
+            ConventionsWorker.Init(interviewManipulator, quest, answer, readOnly);
         }
 
         private void BuildSingleAnswerInterface()
         {
+            var alternatives = ConventionsWorker.GetAllowedAlternatives();
             //создаем комбобокс
-            var cb = new ComboBox();
-            var alternatives = interviewManipulator.GetAllowedAlternatives().ToList();//получаем список разрешенных к показу альтернатив
-            cb.DataSource = alternatives;//отображаем список альтернатив
-            cb.ValueMember = "Code";
-            cb.DisplayMember = "Title";
-            cb.DropDownStyle = ComboBoxStyle.DropDownList;
-            cb.Parent = pnMain;
-            cb.SelectedValueChanged += (o, O) => OnValueSelected((int)cb.SelectedValue);//обрабатываем выбор
+            var cb = new ComboBox
+            {
+                DataSource = alternatives,
+                ValueMember = "Code",
+                DisplayMember = "Title",
+                DropDownStyle = ComboBoxStyle.DropDownList,
+                Parent = pnMain
+            };
+
+            cb.SelectedValueChanged += (sender, args) => OnValueSelected((int)cb.SelectedValue);//обрабатываем выбор
             //имитируем выбор первой альтернативы
             if(alternatives.Count > 0)
                 OnValueSelected(alternatives[0].Code);
@@ -73,30 +64,28 @@ namespace QuestInterviewNS
         private void BuildOpenAnswerInterface()
         {
             //создаем текстбокс
-            var tb = new TextBox();
-            tb.Parent = pnMain;
-            tb.TextChanged += (o, O) => OnValueSelected(tb.Text);//обрабатываем выбор
+            var tb = new TextBox { Parent = pnMain };
+            tb.TextChanged += (sender, args) => OnValueSelected(tb.Text);//обрабатываем выбор
         }
 
         private void BuildReadOnlyAnswerInterface()
         {
-            //создаем лейбу
-            var lb = new Label();
-            //получаем альтернативу
-            var alt = quest.FirstOrDefault(a => a.Code == answer.AlternativeCode);
-            lb.Text = alt?.Title + " " + answer.Text;
-            lb.Parent = pnMain;
+            var alternative = ConventionsWorker.GetSingleAlternative();
+            if (alternative == null) return;
+            var label = new Label {Text = alternative.FormattedTitle, Parent = pnMain};
         }
 
         private void OnValueSelected(int alternativeCode)
         {
-            answer.AlternativeCode = alternativeCode; //отправлем выбранное значение в доменный объект
+            //отправлем выбранное значение в доменный объект
+            ConventionsWorker.SetAlternativeCode(alternativeCode);
             Changed();//сигнализируем наверх, о том, что пользователь что-то выбрал
         }
 
         private void OnValueSelected(string text)
         {
-            answer.Text = text; //отправлем выбранное значение в доменный объект
+            //отправлем выбранное значение в доменный объект
+            ConventionsWorker.SetAnswerText(text);
             Changed();//сигнализируем наверх, о том, что пользователь что-то выбрал
         }
     }

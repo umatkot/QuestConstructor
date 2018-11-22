@@ -7,7 +7,7 @@
     <ProjectGuid>{441F42B4-D564-4171-BF64-9D52376D7F68}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>QuestCoreNS</RootNamespace>
+    <RootNamespace>QuestCore</RootNamespace>
     <AssemblyName>QuestCore</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -32,6 +32,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -40,10 +41,16 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Helpers\ControlHelper.cs" />
+    <Compile Include="Helpers\FlowPanelActionHelper.cs" />
     <Compile Include="Model\Anketa.cs" />
     <Compile Include="Helpers\ListHelper.cs" />
     <Compile Include="Model\Condition.cs" />
+    <Compile Include="Model\Conventions.cs" />
+    <Compile Include="Model\ConventionsWorker.cs" />
+    <Compile Include="Model\IConventions.cs" />
     <Compile Include="Model\Interview.cs" />
+    <Compile Include="Model\UserPanelActionType.cs" />
     <Compile Include="Services\ExportToCSV.cs" />
     <Compile Include="Services\ConditionCalculator.cs" />
     <Compile Include="Services\ExportToDB.cs" />

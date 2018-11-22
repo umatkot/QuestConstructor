@@ -1,12 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Вычисляет условия
@@ -53,7 +50,18 @@ namespace QuestCoreNS
                     throw new Exception("Вопрос " + m.Value + " не найден");
 
             //проверяем синтаксис
-            Calculate(new Anketa(), new Condition {Expression = expression});
+            Calculate(new Anketa(), new Condition(expression));
+        }
+
+        /// <summary>
+        /// Проверяет, есть ли уже вопрос в опроснике с данным выражением
+        /// </summary>
+        /// <param name="questionnaire"></param>
+        /// <param name="condition"></param>
+        /// <returns></returns>
+        public bool CheckQuestionByConditionIfExists(Questionnaire questionnaire, Condition condition)
+        {
+            return questionnaire.Where(q => q.Condition != null).Any(q => q.Condition.Equals(condition));
         }
     }
 }

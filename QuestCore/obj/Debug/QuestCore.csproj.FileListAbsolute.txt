@@ -1,9 +1,0 @@
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\bin\Debug\QuestCore.dll
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\bin\Debug\QuestCore.pdb
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\obj\Debug\QuestCore.dll
-D:\Projects_CSharp\Examples\WindowsFormsApplication396\QuestCore\obj\Debug\QuestCore.pdb
-D:\Projects_CSharp\Examples\QuestConstructor\QuestCore\bin\Debug\QuestCore.dll
-D:\Projects_CSharp\Examples\QuestConstructor\QuestCore\bin\Debug\QuestCore.pdb
-D:\Projects_CSharp\Examples\QuestConstructor\QuestCore\obj\Debug\QuestCore.csprojResolveAssemblyReference.cache
-D:\Projects_CSharp\Examples\QuestConstructor\QuestCore\obj\Debug\QuestCore.dll
-D:\Projects_CSharp\Examples\QuestConstructor\QuestCore\obj\Debug\QuestCore.pdb

@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace QuestCoreNS
+namespace QuestCore
 {
     /// <summary>
     /// Опросник.
@@ -15,6 +10,24 @@ namespace QuestCoreNS
     [Serializable]
     public class Questionnaire : List<Quest>
     {
+        /// <summary>
+        /// Идентификатор текущего вопроса в опроснике
+        /// </summary>
+        public string CurrentQuestId { get; set; }
+
+        public Quest CurrentQuestion => Find(q => q.Id.Equals(CurrentQuestId));
+
+        /// <summary>
+        /// Устанавливает текущий элемент в структуре
+        /// </summary>
+        /// <param name="currentQuest">Текущий вопрос</param>
+        /// <param name="currentAlternative">Текущий вариант</param>
+        public void SetCurrentElement(Quest currentQuest, Alternative currentAlternative = null)
+        {
+            CurrentQuestId = currentQuest.Id;
+            if(currentAlternative != null)
+                currentQuest.CurrentAlternativeCode = currentAlternative.Code;
+        }
     }
 
     /// <summary>
@@ -43,6 +56,8 @@ namespace QuestCoreNS
         /// Условие показа
         /// </summary>
         public Condition Condition { get; set; }
+
+        public int CurrentAlternativeCode { get; set; }
     }
 
     /// <summary>
@@ -58,7 +73,25 @@ namespace QuestCoreNS
         /// <summary>
         /// Пользователь может вбить произвольный ответ в текстовое поле
         /// </summary>
-        OpenQuestion
+        OpenQuestion,
+        /// <summary>
+        /// Для отображения уже завершённого вопроса
+        /// </summary>
+        ReadOnlyAnswer
+    }
+
+    /// <summary>
+    /// Класс-структура для помещения значения в Combobox
+    /// </summary>
+    public class QuestTypeDataSet
+    {
+        public QuestType Value { get; set; }
+        public string Text { get; set; }
+
+        public override string ToString()
+        {
+            return Text;
+        }
     }
 
     /// <summary>
@@ -81,5 +114,18 @@ namespace QuestCoreNS
         /// Условие показа
         /// </summary>
         public Condition Condition { get; set; }
+
+        /// <summary>
+        /// Форматированный вывод заголовка
+        /// Применяется, если конечному объекту для отображения потребуется второе значение
+        /// </summary>
+        public string FormattedTitle {
+
+            get => _formattedTitle;
+
+            set => _formattedTitle = $"{Title} {value}";
+        }
+
+        private string _formattedTitle;
     }
 }

@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace QuestConstructorNS
@@ -18,7 +15,10 @@ namespace QuestConstructorNS
             ExceptionHandler.Init();
 
             //иконка для всех форм
-            typeof(Form).GetField("defaultIcon", BindingFlags.NonPublic | BindingFlags.Static).SetValue(null, Properties.Resources.question1);
+            var defaultIconField = typeof(Form).GetField("defaultIcon", BindingFlags.NonPublic | BindingFlags.Static);
+            
+                if(defaultIconField != null)
+                    defaultIconField.SetValue(null, Properties.Resources.question1);
 
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);

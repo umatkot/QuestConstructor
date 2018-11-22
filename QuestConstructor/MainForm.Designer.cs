@@ -56,7 +56,7 @@
             this.btExportCSV});
             this.tsMain.Location = new System.Drawing.Point(0, 0);
             this.tsMain.Name = "tsMain";
-            this.tsMain.Size = new System.Drawing.Size(763, 27);
+            this.tsMain.Size = new System.Drawing.Size(592, 27);
             this.tsMain.TabIndex = 0;
             this.tsMain.Text = "toolStrip1";
             // 
@@ -135,14 +135,14 @@
             this.pnMain.Location = new System.Drawing.Point(0, 27);
             this.pnMain.Name = "pnMain";
             this.pnMain.Padding = new System.Windows.Forms.Padding(3);
-            this.pnMain.Size = new System.Drawing.Size(763, 405);
+            this.pnMain.Size = new System.Drawing.Size(592, 324);
             this.pnMain.TabIndex = 1;
             // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(763, 432);
+            this.ClientSize = new System.Drawing.Size(592, 351);
             this.Controls.Add(this.pnMain);
             this.Controls.Add(this.tsMain);
             this.Name = "MainForm";
